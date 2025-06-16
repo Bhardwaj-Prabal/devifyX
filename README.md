@@ -31,7 +31,9 @@ A fully-featured, customizable, and accessible Toast Notification Queue componen
 
 ```bash
 # Clone the repository
-git clone <your-repo-url>
+git clone https://github.com/Bhardwaj-Prabal/devifyX.git
+
+cd Toast
 
 # Install dependencies
 npm install
