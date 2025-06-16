@@ -1,10 +1,9 @@
 import React, { useState, useEffect, useRef, useCallback, createContext, useContext } from 'react';
 import { X, CheckCircle, AlertCircle, Info, Undo2 } from 'lucide-react';
 
-// Toast Context for global toast management
 const ToastContext = createContext();
 
-// Toast types configuration
+
 const TOAST_TYPES = {
   success: {
     icon: CheckCircle,
@@ -32,7 +31,6 @@ const TOAST_TYPES = {
   }
 };
 
-// Position configurations
 const POSITIONS = {
   'top-right': 'top-4 right-4',
   'top-left': 'top-4 left-4',
@@ -42,7 +40,6 @@ const POSITIONS = {
   'bottom-center': 'bottom-4 left-1/2 transform -translate-x-1/2'
 };
 
-// Individual Toast Component
 const Toast = ({ toast, onDismiss, onUndo }) => {
   const [isVisible, setIsVisible] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
@@ -55,7 +52,6 @@ const Toast = ({ toast, onDismiss, onUndo }) => {
   const toastConfig = TOAST_TYPES[toast.type] || TOAST_TYPES.info;
   const IconComponent = toastConfig.icon;
 
-  // Start the auto-dismiss timer
   const startTimer = useCallback(() => {
     if (remainingTimeRef.current <= 0) return;
     
@@ -64,21 +60,18 @@ const Toast = ({ toast, onDismiss, onUndo }) => {
       handleDismiss();
     }, remainingTimeRef.current);
 
-    // Progress animation
     if (progressRef.current) {
       progressRef.current.style.transition = `width ${remainingTimeRef.current}ms linear`;
       progressRef.current.style.width = '0%';
     }
   }, []);
 
-  // Pause the timer
   const pauseTimer = useCallback(() => {
     if (timeoutRef.current) {
       clearTimeout(timeoutRef.current);
       const elapsed = Date.now() - startTimeRef.current;
       remainingTimeRef.current = Math.max(0, remainingTimeRef.current - elapsed);
       
-      // Pause progress animation
       if (progressRef.current) {
         const currentWidth = (remainingTimeRef.current / toast.duration) * 100;
         progressRef.current.style.transition = 'none';
@@ -87,20 +80,17 @@ const Toast = ({ toast, onDismiss, onUndo }) => {
     }
   }, [toast.duration]);
 
-  // Handle dismiss with animation
   const handleDismiss = useCallback(() => {
     setIsVisible(false);
     setTimeout(() => onDismiss(toast.id), 300);
   }, [toast.id, onDismiss]);
 
-  // Handle keyboard events
   const handleKeyDown = useCallback((e) => {
     if (e.key === 'Escape') {
       handleDismiss();
     }
   }, [handleDismiss]);
 
-  // Initialize toast
   useEffect(() => {
     setIsVisible(true);
     if (toast.duration > 0) {
@@ -113,7 +103,6 @@ const Toast = ({ toast, onDismiss, onUndo }) => {
     };
   }, [startTimer, toast.duration]);
 
-  // Handle hover state
   useEffect(() => {
     if (toast.duration > 0) {
       if (isHovered) {
@@ -124,7 +113,6 @@ const Toast = ({ toast, onDismiss, onUndo }) => {
     }
   }, [isHovered, startTimer, pauseTimer, toast.duration]);
 
-  // Reset progress when starting timer
   useEffect(() => {
     if (!isHovered && progressRef.current && toast.duration > 0) {
       setProgress((remainingTimeRef.current / toast.duration) * 100);
@@ -148,7 +136,7 @@ const Toast = ({ toast, onDismiss, onUndo }) => {
       onMouseLeave={() => setIsHovered(false)}
       onKeyDown={handleKeyDown}
     >
-      {/* Progress bar */}
+  
       {toast.duration > 0 && (
         <div className="absolute top-0 left-0 right-0 h-1 bg-gray-200 dark:bg-gray-700 rounded-t-lg overflow-hidden">
           <div
@@ -160,19 +148,15 @@ const Toast = ({ toast, onDismiss, onUndo }) => {
       )}
 
       <div className="flex items-start">
-        {/* Icon */}
         <div className="flex-shrink-0">
           <IconComponent className={`h-5 w-5 ${toastConfig.iconColor}`} aria-hidden="true" />
         </div>
-
-        {/* Content */}
         <div className="ml-3 flex-1">
           {toast.title && (
             <h3 className="text-sm font-medium mb-1">{toast.title}</h3>
           )}
           <p className="text-sm">{toast.message}</p>
           
-          {/* Undo button */}
           {toast.undoAction && (
             <button
               onClick={() => onUndo?.(toast)}
@@ -185,7 +169,7 @@ const Toast = ({ toast, onDismiss, onUndo }) => {
           )}
         </div>
 
-        {/* Close button */}
+
         <div className="ml-4 flex-shrink-0">
           <button
             onClick={handleDismiss}
@@ -200,7 +184,6 @@ const Toast = ({ toast, onDismiss, onUndo }) => {
   );
 };
 
-// Toast Container Component
 const ToastContainer = ({ position = 'top-right', maxToasts = 5 }) => {
   const { toasts, removeToast, undoAction } = useContext(ToastContext);
   
@@ -229,7 +212,6 @@ const ToastContainer = ({ position = 'top-right', maxToasts = 5 }) => {
   );
 };
 
-// Toast Provider Component
 const ToastProvider = ({ children, defaultOptions = {} }) => {
   const [toasts, setToasts] = useState([]);
   const toastIdRef = useRef(0);
@@ -279,7 +261,6 @@ const ToastProvider = ({ children, defaultOptions = {} }) => {
   );
 };
 
-// Hook to use toast functionality
 const useToast = () => {
   const context = useContext(ToastContext);
   if (!context) {
@@ -288,14 +269,12 @@ const useToast = () => {
   return context;
 };
 
-// Demo Component
 const ToastDemo = () => {
   const { addToast, removeAllToasts } = useToast();
   const [isDark, setIsDark] = useState(false);
   const [position, setPosition] = useState('top-right');
   const undoCountRef = useRef(0);
 
-  // Toggle dark mode
   useEffect(() => {
     if (isDark) {
       document.documentElement.classList.add('dark');
@@ -336,7 +315,7 @@ const ToastDemo = () => {
       type: 'info',
       title: 'Persistent Toast',
       message: 'This toast will not auto-dismiss. Click the X to close it.',
-      duration: 0 // No auto-dismiss
+      duration: 0 
     });
   };
 
@@ -347,11 +326,11 @@ const ToastDemo = () => {
       <div className="max-w-4xl mx-auto">
         <h1 className="text-3xl font-bold mb-8 text-center">Toast Notification Queue Demo</h1>
         
-        {/* Controls */}
+     
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-8">
           <h2 className="text-xl font-semibold mb-4 text-gray-900 dark:text-gray-100">Controls</h2>
           
-          {/* Theme Toggle */}
+   
           <div className="flex items-center justify-between mb-4">
             <span className="text-gray-900 dark:text-gray-100">Theme:</span>
             <button
@@ -362,7 +341,6 @@ const ToastDemo = () => {
             </button>
           </div>
 
-          {/* Position Selector */}
           <div className="flex items-center justify-between mb-6">
             <span className="text-gray-900 dark:text-gray-100">Position:</span>
             <select
@@ -378,7 +356,6 @@ const ToastDemo = () => {
             </select>
           </div>
 
-          {/* Toast Buttons */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
             {Object.keys(TOAST_TYPES).map(type => (
               <button
@@ -396,7 +373,6 @@ const ToastDemo = () => {
             ))}
           </div>
 
-          {/* Additional Actions */}
           <div className="flex flex-wrap gap-4">
             <button
               onClick={showPersistentToast}
@@ -413,7 +389,6 @@ const ToastDemo = () => {
           </div>
         </div>
 
-        {/* Features List */}
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
           <h2 className="text-xl font-semibold mb-4 text-gray-900 dark:text-gray-100">Features Demonstrated</h2>
           <div className="grid md:grid-cols-2 gap-4 text-sm">
@@ -447,13 +422,12 @@ const ToastDemo = () => {
         </div>
       </div>
 
-      {/* Toast Container */}
+
       <ToastContainer position={position} maxToasts={5} />
     </div>
   );
 };
 
-// Main App Component
 const App = () => {
   return (
     <ToastProvider defaultOptions={{ duration: 5000 }}>
